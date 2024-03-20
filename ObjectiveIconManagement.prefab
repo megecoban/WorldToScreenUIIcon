@@ -50,4 +50,10 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  useLerp: 1
+  lerpSpeed: 30
+  useDistance: 1
+  minDistance: 0.1
+  maxDistance: 10000
   iconSize: {x: 50, y: 50}
+  iconColorTint: {r: 1, g: 1, b: 1, a: 1}

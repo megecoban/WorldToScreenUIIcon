@@ -8,12 +8,26 @@ using static UnityEngine.GraphicsBuffer;
 
 public class ObjectiveIconManagement : MonoBehaviour
 {
+    [Header("Requirements")]
     [SerializeField] private Canvas objectiveCanvas;
     [SerializeField] private Camera mainCamera;
     [SerializeField] private List<GameObject> objects = new List<GameObject>();
     private List<GameObject> imageObj = new List<GameObject>();
 
+    [Header("Settings")]
+    [Header("Lerp Settings")]
+    [SerializeField] private bool useLerp = true;
+    [SerializeField][Range(1f, 600f)] private float lerpSpeed = 30f;
+
+    [Header("Distance Settings")]
+    [SerializeField] private bool useDistance = true;
+    [SerializeField][Range(0.005f, 3f)] private float minDistance = 0.1f;
+    [SerializeField][Range(3f, 10000f)] private float maxDistance = 10000f;
+
+    [Header("Icon Settings")]
     [SerializeField] private Vector2 iconSize = new Vector2(50f, 50f);
+    [SerializeField] private Color iconColorTint = new Color(1f, 1f, 1f, 1f);
+
 
     private void Start()
     {
@@ -58,7 +72,10 @@ public class ObjectiveIconManagement : MonoBehaviour
 
             Vector3 screenPos = Vector3.zero;
 
-            if (Vector3.Distance(objects[i].transform.position, mainCamera.transform.position) > 1f )
+            if (useDistance == false ||
+                (
+                Vector3.Distance(objects[i].transform.position, mainCamera.transform.position) >= minDistance 
+                && Vector3.Distance(objects[i].transform.position, mainCamera.transform.position) <= maxDistance))
             {
                 if(Vector3.Dot(mainCamera.transform.forward
                     , (objects[i].transform.position - mainCamera.transform.position).normalized) > 0f)
@@ -81,11 +98,20 @@ public class ObjectiveIconManagement : MonoBehaviour
                 Vector2 prev = imageObj[i].GetComponent<RectTransform>().anchoredPosition;
 
                 imageObj[i].GetComponent<RectTransform>().anchoredPosition =
+
+                    useLerp ?
+
                     Vector2.Lerp(prev
                     , ClampToCanvas(temp)
-                    , Time.deltaTime * 30f);
+                    , Time.deltaTime * lerpSpeed)
+
+                    :
+
+                    ClampToCanvas(temp);
+                    ;
 
                 imageObj[i].GetComponent<RectTransform>().sizeDelta = iconSize;
+                imageObj[i].GetComponent<Image>().color = iconColorTint;
             }
             else
             {
@@ -93,11 +119,20 @@ public class ObjectiveIconManagement : MonoBehaviour
                 Vector2 prev = imageObj[i].GetComponent<RectTransform>().anchoredPosition;
 
                 imageObj[i].GetComponent<RectTransform>().anchoredPosition =
+
+                    useLerp ?
+
                     Vector2.Lerp(prev
                     , ClampToCanvas(temp)
-                    , Time.deltaTime * 30f);
+                    , Time.deltaTime * lerpSpeed)
+
+                    :
+
+                    ClampToCanvas(temp);
+                ;
 
                 imageObj[i].GetComponent<RectTransform>().sizeDelta = iconSize;
+                imageObj[i].GetComponent<Image>().color = iconColorTint;
             }
         }
     }
@@ -114,19 +149,4 @@ public class ObjectiveIconManagement : MonoBehaviour
 
         return new Vector2(clampedX, clampedY);
     }
-
-    /*
-     if (RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, screenPoint, null, out Vector2 localPoint))
-        {
-            // Ýþaretleyiciyi oluþtur
-            Image marker = Instantiate(markerPrefab, transform);
-            
-            // Ýþaretleyiciyi doðru konuma yerleþtir
-            marker.rectTransform.localPosition = localPoint;
-        }
-        else
-        {
-            Debug.LogWarning("Obje ekranýn içinde deðil.");
-        }
-     */
 }
